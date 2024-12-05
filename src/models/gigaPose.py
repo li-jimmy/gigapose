@@ -612,6 +612,7 @@ class GigaPose(pl.LightningModule):
         selected_idxs, predictions = self.filter_and_save(
             predictions, test_list=batch.test_list, time=total_time, save_path=save_path
         )
+        
         if idx_batch % self.log_interval == 0 and self.max_num_dets_per_forward is None:
             vis_img = self.vis_retrieval(
                 template_data=template_data,
@@ -631,6 +632,10 @@ class GigaPose(pl.LightningModule):
                 name=f"{dataset_name}",
                 path=sample_path,
             )
+        
+        
+        import ipdb; ipdb.set_trace()
+        pass
 
     @torch.no_grad()
     def test_step(self, batch, idx_batch):

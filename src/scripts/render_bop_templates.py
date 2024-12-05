@@ -121,7 +121,7 @@ def render(cfg) -> None:
             obj_pose_path=obj_pose_path,
             disable_output=disable_output,
             num_gpus=num_gpus,
-            use_blenderProc=True if dataset_name in ["tless", "itodd"] else False,
+            use_blenderProc=True # if dataset_name in ["tless", "itodd"] else False,
         )
         values = list(
             tqdm(

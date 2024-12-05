@@ -56,7 +56,8 @@ def create_edge_from_mask(image_size, mask, size=3):
         (0, 0),
         mask,
     )
-    edge = canny(np.array(tmp))
+    #edge = canny(np.array(tmp))
+    edge = cv2.Canny(np.array(tmp), 100, 200)
     edge = binary_dilation(edge, np.ones((size, size)))
     return edge
 
@@ -98,12 +99,12 @@ def plot_keypoints(
 
     matches = [cv2.DMatch(i, i, 0) for i in range(len(src_pts))]
     matched_img = cv2.drawMatchesKnn(
-        img1=src_img,
-        keypoints1=src_pts,
-        img2=tar_img,
-        keypoints2=tar_pts,
-        matches1to2=[matches],
-        outImg=None,
+        src_img,
+        src_pts,
+        tar_img,
+        tar_pts,
+        [matches],
+        None,
         flags=2,
     )
     if border_color is not None:

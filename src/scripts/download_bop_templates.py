@@ -15,13 +15,16 @@ logger = get_logger(__name__)
 def download(cfg: DictConfig) -> None:
     root_dir = Path(cfg.machine.root_dir)
     source_url = (
-        "https://huggingface.co/datasets/nv-nguyen/gigaPose/resolve/main/templates.zip"
+        "https://huggingface.co/datasets/nv-nguyen/gigaPose/resolve/main/templates.zip?download=true"
     )
     tmp_dir = root_dir / "datasets/tmp/"
     os.makedirs(tmp_dir, exist_ok=True)
 
-    download_cmd = f"wget -O {tmp_dir}/templates.zip {source_url}"
-    logger.info(f"Running {download_cmd}")
+    if os.path.exists(tmp_dir / "templates.zip"):
+        logger.info("Templates already downloaded")
+    else:
+        download_cmd = f"wget -O {tmp_dir}/templates.zip {source_url}"
+        logger.info(f"Running {download_cmd}")
     # os.system(download_cmd)
 
     unzip_cmd = f"unzip {tmp_dir}/templates.zip -d {tmp_dir}"
