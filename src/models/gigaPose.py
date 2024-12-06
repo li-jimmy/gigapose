@@ -515,10 +515,10 @@ class GigaPose(pl.LightningModule):
                 batch.infos.label[idx_sample.cpu().numpy()]
             ).astype(np.int32)
             tar_label = torch.from_numpy(tar_label_np).to(device)
-
+            
             # template data
-            src_ae_features = template_data.ae_features[tar_label - 1]
-            src_masks = template_data.mask[tar_label - 1]
+            src_ae_features = template_data.ae_features[tar_label - 1] # GPU mem
+            src_masks = template_data.mask[tar_label - 1] # GPU mem
 
             # Step 1: Nearest neighbor search
             self.timer.tic()
@@ -528,7 +528,7 @@ class GigaPose(pl.LightningModule):
                 src_masks=src_masks,
                 tar_mask=batch.tar_mask[idx_sample],
                 max_batch_size=None,
-            )
+            ) # GPU mem
             predictions_.infos = batch.infos
             if idx_sub_batch == 0:
                 predictions = predictions_
@@ -573,7 +573,6 @@ class GigaPose(pl.LightningModule):
                     src_pts=predictions.src_pts[:, idx_k],
                     tar_pts=predictions.tar_pts[:, idx_k],
                 )
-
         predictions.register_tensor("relScale", pred_scales)
         predictions.register_tensor(
             "relInplane",
@@ -612,8 +611,8 @@ class GigaPose(pl.LightningModule):
         selected_idxs, predictions = self.filter_and_save(
             predictions, test_list=batch.test_list, time=total_time, save_path=save_path
         )
-        
-        if idx_batch % self.log_interval == 0 and self.max_num_dets_per_forward is None:
+        print(times)
+        if self.max_num_dets_per_forward is None:
             vis_img = self.vis_retrieval(
                 template_data=template_data,
                 batch=batch,
@@ -633,9 +632,11 @@ class GigaPose(pl.LightningModule):
                 path=sample_path,
             )
         
-        
-        import ipdb; ipdb.set_trace()
-        pass
+        del src_ae_features
+        del src_masks
+        del predictions
+        del predictions_
+        torch.cuda.empty_cache()
 
     @torch.no_grad()
     def test_step(self, batch, idx_batch):
